@@ -1,0 +1,57 @@
+{
+  "windows": 3600,
+  "train_windows": 2520,
+  "test_windows": 1080,
+  "train_sessions": 168,
+  "test_sessions": 72,
+  "accuracy_float": 0.9444,
+  "accuracy_int8": 0.9509,
+  "float_int8_agreement": 0.9917,
+  "confusion_int8": [
+    [
+      242,
+      27,
+      0,
+      1
+    ],
+    [
+      15,
+      255,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      270,
+      0
+    ],
+    [
+      10,
+      0,
+      0,
+      260
+    ]
+  ],
+  "classes": [
+    "NORMAL",
+    "IMBALANCE",
+    "MISALIGNMENT",
+    "BEARING"
+  ],
+  "model_bytes": {
+    "weights_int8": 448,
+    "biases_int32": 80,
+    "float32_equivalent_weights": 1792
+  },
+  "per_class_recall_int8": [
+    0.8963,
+    0.9444,
+    1.0,
+    0.963
+  ],
+  "normal_false_positive_rate_per_window": 0.1037,
+  "fault_recall_severity_0.1-0.3": 0.6667,
+  "fault_recall_severity_0.3-0.6": 1.0,
+  "fault_recall_severity_0.6-1.5": 1.0
+}

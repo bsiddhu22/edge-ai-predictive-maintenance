@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy scikit-learn matplotlib pytest
+
+      - name: Build (firmware warnings are errors)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
+      - name: Unit tests + golden-vector parity
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: SIL scenario tests
+        run: pytest tests/sil -v
+
+  retrain-reproducible:
+    # Regenerates data and retrains from scratch; fails if accuracy regresses.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy scikit-learn
+      - run: |
+          cmake -S . -B build && cmake --build build --target pdm_datagen
+          mkdir -p data && ./build/pdm_datagen data/train.bin 60 15 1000
+          python ml/train.py
+          python -c "import json; m=json.load(open('ml/metrics.json')); assert m['accuracy_int8'] >= 0.90, m"
+          cmake --build build && ./build/unit_tests
